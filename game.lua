@@ -50,7 +50,7 @@ function newGame()
       else
         return false
       end
-      self.state = 'round_mid'
+      self:changeState('round_mid')
       self:nextTurn()
       return true
     end,
@@ -59,7 +59,7 @@ function newGame()
       self.players = {}
       self.currentPlayerIndex = love.math.random(numberOfPlayers)
       self.currentBet = {count=0,face=0}
-      self.state = 'round_start'
+      self:changeState('round_start')
       for player_number=1,numberOfPlayers do
         self.players[player_number] = newPlayer()
         self.players[player_number].name = 'Player ' .. player_number
@@ -74,7 +74,7 @@ function newGame()
       if playerGoingFirst == nil then print('Need to know who is going first!') return end
       self.currentPlayerIndex = playerGoingFirst
       self.currentBet = {count=0,face=0}
-      self.state = 'round_start'
+      self:changeState('round_start')
       local numberOfPlayersStillIn = 0
       for player_number=1,#self.players do
         self.players[player_number].hand = {}
@@ -88,7 +88,7 @@ function newGame()
 
       if numberOfPlayersStillIn == 1 then
         self.winner = playerGoingFirst
-        self.state = 'game_over'
+        self:changeState('game_over')
       end
     end,
     -- helper function to read the current board state
@@ -114,7 +114,7 @@ function newGame()
     -- TRUE if the bet is accurate
     -- ie: FALSE means the caller loses
     evaluate = function(self)
-      self.state = 'round_over'
+      self:changeState('round_over')
       if self.currentBet.face == 0 then return nil end
       local diceList = {}
       diceList[1] = 0
@@ -156,5 +156,36 @@ function newGame()
      end
      return total
    end,
-  }
+
+   changeState = function(self,targetState)
+     local allowed = false
+     if self.state == 'round_mid' then
+       if targetState == 'round_over' then
+         allowed = true
+       end
+     end
+     if targetState == 'game_over' and self.state == 'round_start' then
+       allowed = true
+     end
+     if targetState == 'round_start' then
+       if self.state == 'round_over' then
+         allowed = true
+       end
+     end
+     if targetState == 'round_mid' then
+       if self.state == 'round_start' then
+         allowed = true
+       end
+     end
+
+     if allowed then
+       self.state = targetState
+     else
+       if self.state ~= targetState then
+         print('illegal state change attempted: ' .. self.state .. ' -> '..targetState)
+       end
+     end
+     return allowed
+   end,
+ }
 end

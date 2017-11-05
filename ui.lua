@@ -1,5 +1,5 @@
 callButton = newButton(400,360,200,32,'Call!',function()
-  winner = currentGame:call()
+  previousRoundWinner = currentGame:call()
   clientBet.count = 1
   clientBet.face = 2
 end)

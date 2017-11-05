@@ -21,28 +21,31 @@ previousRoundWinner = 0
 local prev_state = ''
 local timeAccumulate = 0
 
-
 function love.update(dt)
   if prev_state ~= currentGame.state then
     prev_state = currentGame.state
     print(currentGame.state)
   end
 
-  local estimate = estimateBoard(currentGame.players[currentGame.currentPlayerIndex].hand,currentGame:totalDice())
-  if currentGame.currentPlayerIndex ~= clientIndex and currentGame.state ~= 'round_over' then
-    timeAccumulate = timeAccumulate + dt
-    if timeAccumulate > 3 then
-      local output = botTurn(currentGame.players[currentGame.currentPlayerIndex].hand,currentGame:totalDice(),currentGame.currentBet)
-      if output.command == 'call' then
-        winner = currentGame:call()
-      else
-        local bet = output.bet
-        local p = currentGame.currentPlayerIndex
-        if currentGame:submitBet(bet) then
-          history[#history+1] = {face=bet.face,count=bet.count,player=p}
+  if currentGame.state ~= 'game_over' then
+    if currentGame.currentPlayerIndex ~= clientIndex and currentGame.state ~= 'round_over' then
+      local estimate = estimateBoard(currentGame.players[currentGame.currentPlayerIndex].hand,currentGame:totalDice())
+      timeAccumulate = timeAccumulate + dt
+      if timeAccumulate > love.math.random(3)/10 then
+        local output = botTurn(currentGame.players[currentGame.currentPlayerIndex].hand,currentGame:totalDice(),currentGame.currentBet)
+        if output.command == 'call' then
+          previousRoundWinner = currentGame:call()
+        else
+          local bet = output.bet
+          local p = currentGame.currentPlayerIndex
+          if currentGame:submitBet(bet) then
+            history[#history+1] = {face=bet.face,count=bet.count,player=p}
+          end
         end
+        timeAccumulate = 0
       end
-      timeAccumulate = 0
+      clientBet.face = currentGame.currentBet.face
+      clientBet.count = currentGame.currentBet.count
     end
   end
 end
@@ -66,7 +69,6 @@ function love.draw()
         faceDownButton.hide = false
         countUpButton.hide = false
         countDownButton.hide = false
-        nextRoundButton.hide = true
         drawBet(clientBet,400,200)
       end
 
@@ -77,7 +79,6 @@ function love.draw()
         faceDownButton.hide = true
         countUpButton.hide = true
         countDownButton.hide = true
-        nextRoundButton.hide = false
       end
     else
       callButton.hide = true
@@ -86,8 +87,9 @@ function love.draw()
       faceDownButton.hide = true
       countUpButton.hide = true
       countDownButton.hide = true
-      nextRoundButton.hide =  true
     end
+
+    nextRoundButton.hide = currentGame.state ~= 'round_over'
 
     for i = 1, #currentGame.players do
       local name = currentGame.players[i].name
