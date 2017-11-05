@@ -97,10 +97,3 @@ function newGame()
     end
   }
 end
-
-function convertAnonymousToBet(table)
-  if table.count == nil then
-    return {count=table[1],face=table[2]}
-  end
-  return table
-end

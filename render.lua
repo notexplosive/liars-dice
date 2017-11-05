@@ -51,3 +51,13 @@ function drawHand(player,x,y,scale)
     drawDi(player.hand[i],x+(scale+4)*(i-1),y,scale)
   end
 end
+
+function drawBet(bet,x,y)
+  bet = convertAnonymousToBet(bet)
+  for i = 1, clientBet.count do
+    local margin = 4
+    local size = 32
+    local max_width = 5
+    drawDi(clientBet.face, x+((i-1) % max_width )*(size+margin),y+(math.floor((i-1)/max_width)*(size+margin)), size)
+  end
+end
