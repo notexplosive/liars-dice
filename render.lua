@@ -1,5 +1,11 @@
-function drawDi(face,x,y,size)
-  love.graphics.setColor(200,200,200)
+function drawDi(face,x,y,size,highlight)
+  if highlight == nil then highlight = false end
+
+  if highlight then
+    love.graphics.setColor(200,255,200)
+  else
+    love.graphics.setColor(200,200,200)
+  end
   love.graphics.rectangle('fill', x, y, size, size)
   love.graphics.setColor(0, 30, 0)
 
@@ -39,7 +45,7 @@ function drawDi(face,x,y,size)
   love.graphics.circle('fill', x+size/2, y+size/2, size/2, 20)
 end
 
-function drawHand(player,x,y,scale)
+function drawHand(player,x,y,scale,highlightFace)
   if x == nil then
     x = 0
     y = 0
@@ -47,8 +53,25 @@ function drawHand(player,x,y,scale)
   if scale == nil then
     scale = 64
   end
+  if highlightFace == nil then
+    highlightFace = 0
+  end
   for i = 1, #player.hand do
-    drawDi(player.hand[i],x+(scale+4)*(i-1),y,scale)
+    drawDi(player.hand[i],x+(scale+4)*(i-1),y,scale,player.hand[i] == highlightFace or (player.hand[i] == 1 and highlightFace ~= 0))
+  end
+end
+
+function drawHiddenHand(player,x,y,scale)
+  if x == nil then
+    x = 0
+    y = 0
+  end
+  if scale == nil then
+    scale = 64
+  end
+
+  for i = 1, #player.hand do
+    drawDi(0,x+(scale+4)*(i-1),y,scale)
   end
 end
 

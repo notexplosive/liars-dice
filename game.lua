@@ -21,37 +21,24 @@ function newGame()
     currentBet = {count=1,face=2},
     -- index of most recent guess submitter
     currentSubmitter = 0,
+    -- winner is nil until the game ends, then it's the index of winner
+    winner=nil,
+    -- state == {'round_start','round_over','round_mid','game_over'}
+    state = 'round_start',
 
     -- iterate players
     nextTurn = function(self)
-      self.currentPlayerIndex = self.currentPlayerIndex+1
-      while self.players[self.currentPlayerIndex].health == 0 do
-        self.currentPlayerIndex = self.currentPlayerIndex+1
-        if self.currentPlayerIndex > #self.players then
-          self.currentPlayerIndex = 1
-        end
-      end
+      self.currentPlayerIndex = self.currentPlayerIndex + 1
       if self.currentPlayerIndex > #self.players then
         self.currentPlayerIndex = 1
+      end
+      if self.players[self.currentPlayerIndex].health == 0 then
+        self:nextTurn()
       end
     end,
     -- tests if submitted Bet is acceptable
     isValidBet = function(self,newBet)
-      newBet = convertAnonymousToBet(newBet)
-      if newBet.count < self.currentBet.count or newBet.face < 2 or newBet.face > 6 then
-        return false
-      end
-
-      if newBet.count > self.currentBet.count then
-        return true
-      end
-
-      if newBet.count == self.currentBet.count then
-        if newBet.face > self.currentBet.face then
-          return true
-        end
-      end
-      return false
+      return isValidBet(self.currentBet,newBet)
     end,
     -- reassigns current Bet
     submitBet = function(self,newBet)
@@ -63,6 +50,7 @@ function newGame()
       else
         return false
       end
+      self.state = 'round_mid'
       self:nextTurn()
       return true
     end,
@@ -71,6 +59,7 @@ function newGame()
       self.players = {}
       self.currentPlayerIndex = love.math.random(numberOfPlayers)
       self.currentBet = {count=0,face=0}
+      self.state = 'round_start'
       for player_number=1,numberOfPlayers do
         self.players[player_number] = newPlayer()
         self.players[player_number].name = 'Player ' .. player_number
@@ -80,16 +69,26 @@ function newGame()
         end
       end
     end,
-    --
+    -- sets up next round; also evaluates if player is last one standing
     setupRound = function(self,playerGoingFirst)
       if playerGoingFirst == nil then print('Need to know who is going first!') return end
       self.currentPlayerIndex = playerGoingFirst
       self.currentBet = {count=0,face=0}
+      self.state = 'round_start'
+      local numberOfPlayersStillIn = 0
       for player_number=1,#self.players do
         self.players[player_number].hand = {}
+        if self.players[player_number].health > 0 then
+          numberOfPlayersStillIn = numberOfPlayersStillIn + 1
+        end
         for di_number=1,self.players[player_number].health do
           self.players[player_number].hand[#self.players[player_number].hand + 1] = rollDi()
         end
+      end
+
+      if numberOfPlayersStillIn == 1 then
+        self.winner = playerGoingFirst
+        self.state = 'game_over'
       end
     end,
     -- helper function to read the current board state
@@ -115,6 +114,7 @@ function newGame()
     -- TRUE if the bet is accurate
     -- ie: FALSE means the caller loses
     evaluate = function(self)
+      self.state = 'round_over'
       if self.currentBet.face == 0 then return nil end
       local diceList = {}
       diceList[1] = 0
@@ -131,6 +131,30 @@ function newGame()
       local truth = evaluateBoard(diceList)
 
      return truth[self.currentBet.face] >= self.currentBet.count
-    end
+   end,
+   -- ends round; returns winner
+   call = function(self)
+     local caller_lost = self:evaluate()
+     if caller_lost == nil then return end
+     local loser = 0
+     local winner = 0
+     if caller_lost then
+       loser = self.currentPlayerIndex
+       winner = self.currentSubmitter
+     else
+       loser = self.currentSubmitter
+       winner = self.currentPlayerIndex
+     end
+     self.players[loser].health = self.players[loser].health - 1
+     return winner
+   end,
+
+   totalDice = function(self)
+     local total = 0
+     for i = 1, #self.players do
+       total = total + self.players[i].health
+     end
+     return total
+   end,
   }
 end

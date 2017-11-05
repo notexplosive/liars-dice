@@ -28,3 +28,36 @@ function convertAnonymousToBet(table)
   end
   return table
 end
+
+function isValidBet(oldBet,newBet)
+  oldBet = convertAnonymousToBet(oldBet)
+  newBet = convertAnonymousToBet(newBet)
+  return oldBet.count < newBet.count or (oldBet.count <= newBet.count and oldBet.face < newBet.face)
+end
+
+
+function estimateBoard(myHand,totalDice)
+  probs = {0,0,0,0,0,0}
+  local totalDiceOtherThanMine = totalDice - #myHand
+  local onesInMyHand = 0
+
+  for i = 1, #myHand do
+    local face = myHand[i]
+    probs[face] = probs[face] + 1/totalDice
+
+    if face == 1 then
+      onesInMyHand = onesInMyHand + 1
+    end
+  end
+
+  for i = 1, 6 do
+    probs[i] = probs[i] + totalDiceOtherThanMine / 6 / totalDice + probs[1] * .66
+  end
+
+  estimates = {}
+  for i = 2, 6 do
+    estimates[i] = math.floor(probs[i] * totalDice)
+  end
+
+  return estimates
+end
