@@ -12,8 +12,31 @@ currentGame = newGame()
 currentGame:setup(4,5)
 
 clientBet = {face=2,count=1}
+history = {}
 
-betButton = newButton(400,400,200,32,'Place Bet!',function() print('submitting bet!') end )
+callButton = newButton(400,360,200,32,'Call!',function()
+  local caller_lost = currentGame:evaluate()
+  if caller_lost == nil then return end
+  local loser = 0
+  local winner = 0
+  if caller_lost then
+    loser = currentGame.currentPlayerIndex
+    winner = currentGame.currentSubmitter
+  else
+    loser = currentGame.currentSubmitter
+    winner = currentGame.currentPlayerIndex
+  end
+  currentGame.players[loser].health = currentGame.players[loser].health - 1
+  clientBet.count = 1
+  clientBet.face = 2
+  currentGame:setupRound(winner)
+end)
+betButton = newButton(400,400,200,32,'Place Bet!',function()
+  local p = currentGame.currentPlayerIndex
+  if currentGame:submitBet(clientBet) then
+    history[#history+1] = {face=clientBet.face,count=clientBet.count,player=p}
+  end
+end)
 faceUpButton = newButton(400,440, 90,32,'- Face',function()
   clientBet.face = clientBet.face - 1
   if clientBet.face < 2 then
@@ -65,4 +88,5 @@ function love.draw()
   end
 
   drawBet(clientBet,400,200)
+  drawBet(currentGame.currentBet,400,10)
 end

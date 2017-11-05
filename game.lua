@@ -25,6 +25,12 @@ function newGame()
     -- iterate players
     nextTurn = function(self)
       self.currentPlayerIndex = self.currentPlayerIndex+1
+      while self.players[self.currentPlayerIndex].health == 0 do
+        self.currentPlayerIndex = self.currentPlayerIndex+1
+        if self.currentPlayerIndex > #self.players then
+          self.currentPlayerIndex = 1
+        end
+      end
       if self.currentPlayerIndex > #self.players then
         self.currentPlayerIndex = 1
       end
@@ -51,7 +57,8 @@ function newGame()
     submitBet = function(self,newBet)
       newBet = convertAnonymousToBet(newBet)
       if self:isValidBet(newBet) then
-        self.currentBet = newBet
+        self.currentBet.face = newBet.face
+        self.currentBet.count = newBet.count
         self.currentSubmitter = self.currentPlayerIndex
       else
         return false
@@ -63,18 +70,27 @@ function newGame()
     setup = function(self, numberOfPlayers, numberOfDicePerPlayer)
       self.players = {}
       self.currentPlayerIndex = love.math.random(numberOfPlayers)
-      self.currentBet = {count=1,face=2}
+      self.currentBet = {count=0,face=0}
       for player_number=1,numberOfPlayers do
         self.players[player_number] = newPlayer()
         self.players[player_number].name = 'Player ' .. player_number
         self.players[player_number].health = numberOfDicePerPlayer
-        for di_number=1,numberOfDicePerPlayer do
+        for di_number=1,self.players[player_number].health do
           self.players[player_number].hand[#self.players[player_number].hand + 1] = rollDi()
         end
       end
     end,
     --
-    setupRound = function(self)
+    setupRound = function(self,playerGoingFirst)
+      if playerGoingFirst == nil then print('Need to know who is going first!') return end
+      self.currentPlayerIndex = playerGoingFirst
+      self.currentBet = {count=0,face=0}
+      for player_number=1,#self.players do
+        self.players[player_number].hand = {}
+        for di_number=1,self.players[player_number].health do
+          self.players[player_number].hand[#self.players[player_number].hand + 1] = rollDi()
+        end
+      end
     end,
     -- helper function to read the current board state
     printBoard = function(self)
@@ -94,6 +110,27 @@ function newGame()
       if self.currentSubmitter ~= nil then
         print('bet was submitted by ' .. self.currentSubmitter)
       end
+    end,
+    -- End of round; Compares current bet to the actual board state, returns
+    -- TRUE if the bet is accurate
+    -- ie: FALSE means the caller loses
+    evaluate = function(self)
+      if self.currentBet.face == 0 then return nil end
+      local diceList = {}
+      diceList[1] = 0
+      diceList[2] = 0
+      diceList[3] = 0
+      diceList[4] = 0
+      diceList[5] = 0
+      diceList[6] = 0
+      for player_number = 1, #self.players do
+        for hand_index = 1, self.players[player_number].health do
+          diceList[#diceList + 1] = self.players[player_number].hand[hand_index]
+        end
+      end
+      local truth = evaluateBoard(diceList)
+
+     return truth[self.currentBet.face] >= self.currentBet.count
     end
   }
 end

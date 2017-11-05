@@ -22,7 +22,7 @@ function evaluateBoard(diceList)
 end
 
 function convertAnonymousToBet(table)
-  if table == nil then print('you forgot to pass in table!') end
+  if table == nil then print('you forgot to pass in table!') return nil end
   if table.count == nil then
     return {count=table[1],face=table[2]}
   end
