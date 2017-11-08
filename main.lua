@@ -60,6 +60,12 @@ function love.draw()
       Buttons[i]:draw()
     end
 
+    if #history > 3 then
+      table.remove(history,4)
+    end
+
+    drawHistory(0,500)
+
     -- REFACTOR!
     if clientIndex == currentGame.currentPlayerIndex then
       if currentGame.state == 'round_mid' or currentGame.state == 'round_start' then
@@ -97,6 +103,7 @@ function love.draw()
         name = name .. '*'
       end
       love.graphics.setFont(mainFont)
+      love.graphics.setColor(255,255,255)
       love.graphics.print(name,0,y)
       y = y+love.graphics.getFont():getHeight()
       local highlightFace = nil

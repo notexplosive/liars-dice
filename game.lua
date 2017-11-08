@@ -57,7 +57,7 @@ function newGame()
     -- set up a brand new game
     setup = function(self, numberOfPlayers, numberOfDicePerPlayer)
       self.players = {}
-      self.currentPlayerIndex = love.math.random(numberOfPlayers)
+      self.currentPlayerIndex = 1 --love.math.random(numberOfPlayers)
       self.currentBet = {count=0,face=0}
       self:changeState('round_start')
       for player_number=1,numberOfPlayers do

@@ -75,12 +75,39 @@ function drawHiddenHand(player,x,y,scale)
   end
 end
 
-function drawBet(bet,x,y)
+function drawBet(bet,x,y,scale)
+  if scale == nil then scale = 1 end
+
   bet = convertAnonymousToBet(bet)
   for i = 1, bet.count do
     local margin = 4
-    local size = 32
+    local size = 32*scale
     local max_width = 5
     drawDi(bet.face, x+((i-1) % max_width )*(size+margin),y+(math.floor((i-1)/max_width)*(size+margin)), size)
+  end
+end
+
+function drawHistory(x,y)
+  if currentGame.state == 'round_start' then
+    history = {}
+  end
+
+  -- constants
+  local margin = 18
+
+  local historyOffset = 0
+  for i=#history,1,-1 do
+    numberOfRows = 0
+    if i > 1 then
+      numberOfRows = (math.floor(history[i-1].count / 5) + 1)
+      if history[i-1].count == 5 then
+        numberOfRows = 1
+      end
+    end
+
+    drawBet(history[i],x+8,y+historyOffset,.5)
+    love.graphics.setColor(255,255,255)
+    love.graphics.print(history[i].player,x+120,y+historyOffset)
+    historyOffset = historyOffset - margin * numberOfRows - 8
   end
 end
