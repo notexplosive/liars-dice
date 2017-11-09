@@ -57,6 +57,8 @@ function love.update(dt)
   end
 end
 
+playerHandTimers = {}
+
 function love.draw()
   local x = 16
   local y = 16
@@ -74,7 +76,6 @@ function love.draw()
 
     drawHistory(0,500)
 
-    -- REFACTOR!
     local clientsTurn = clientIndex == currentGame.currentPlayerIndex
     local roundStart = currentGame.state == 'round_start'
     local roundMid = currentGame.state == 'round_mid'
@@ -110,7 +111,7 @@ function love.draw()
       end
 
       if i == clientIndex then
-        drawHand(currentGame.players[i],x,y,32,highlightFace)
+        drawHand(currentGame.players[i],x,y,32,highlightFace,playerHandTimers)
       else
         if currentGame.state == 'round_over' then
           drawHand(currentGame.players[i],x,y,32,highlightFace)

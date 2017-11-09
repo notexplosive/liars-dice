@@ -1,4 +1,4 @@
-function drawDi(face,x,y,size,highlight)
+function drawDi(face,x,y,size,highlight,wireframe)
   if highlight == nil then highlight = false end
 
   if highlight then
@@ -6,12 +6,18 @@ function drawDi(face,x,y,size,highlight)
   else
     love.graphics.setColor(200,200,200)
   end
-  love.graphics.rectangle('fill', x, y, size, size)
+
+  local fillType = 'fill'
+  if wireframe then
+    fillType = 'line'
+  end
+
+  love.graphics.rectangle(fillType, x, y, size, size)
   love.graphics.setColor(0, 30, 0)
 
   local circle_radius = 5/64 * size
   if face % 2 == 1 then
-    love.graphics.circle('fill', x+size/2, y+size/2, circle_radius, 10)
+    love.graphics.circle(fillType, x+size/2, y+size/2, circle_radius, 10)
   end
 
   -- unknown face
@@ -25,27 +31,27 @@ function drawDi(face,x,y,size,highlight)
 
   -- 3 5 2 4 6
   if face > 1 then
-    love.graphics.circle('fill', x+size/4, y+size/4, circle_radius, 10)
-    love.graphics.circle('fill', x+size/4+size/2, y+size/4+size/2, circle_radius, 10)
+    love.graphics.circle(fillType, x+size/4, y+size/4, circle_radius, 10)
+    love.graphics.circle(fillType, x+size/4+size/2, y+size/4+size/2, circle_radius, 10)
   end
 
   -- 4 5 6
   if face >= 4 then
-    love.graphics.circle('fill', x+size/2+size/4, y+size/4, circle_radius, 10)
-    love.graphics.circle('fill', x+size/4, y+size/2+size/4, circle_radius, 10)
+    love.graphics.circle(fillType, x+size/2+size/4, y+size/4, circle_radius, 10)
+    love.graphics.circle(fillType, x+size/4, y+size/2+size/4, circle_radius, 10)
   end
 
   -- 6
   if face == 6 then
-    love.graphics.circle('fill', x+size/4, y+size/2, circle_radius, 10)
-    love.graphics.circle('fill', x+size-size/4, y+size/2, circle_radius, 10)
+    love.graphics.circle(fillType, x+size/4, y+size/2, circle_radius, 10)
+    love.graphics.circle(fillType, x+size-size/4, y+size/2, circle_radius, 10)
   end
 
   love.graphics.setColor(0,0,0,50)
-  love.graphics.circle('fill', x+size/2, y+size/2, size/2, 20)
+  love.graphics.circle(fillType, x+size/2, y+size/2, size/2, 20)
 end
 
-function drawHand(player,x,y,scale,highlightFace)
+function drawHand(player,x,y,scale,highlightFace,timers)
   if x == nil then
     x = 0
     y = 0
@@ -56,8 +62,26 @@ function drawHand(player,x,y,scale,highlightFace)
   if highlightFace == nil then
     highlightFace = 0
   end
+  if timers == nil then
+    timers = {}
+    for i = 1, #player.hand do
+      timers[i] = 0
+    end
+  end
+  if #timers ~= #player.hand then
+    for i = 1, #player.hand do
+      timers[i] = 5*i
+    end
+  end
   for i = 1, #player.hand do
-    drawDi(player.hand[i],x+(scale+4)*(i-1),y,scale,player.hand[i] == highlightFace or (player.hand[i] == 1 and highlightFace ~= 0))
+    wf = true
+    if timers[i] > 0 then
+      timers[i] = timers[i] - 1
+      y = y - timers[i]
+    else
+      wf = false
+    end
+    drawDi(player.hand[i],x+(scale+4)*(i-1),y,scale,player.hand[i] == highlightFace or (player.hand[i] == 1 and highlightFace ~= 0),wf)
   end
 end
 

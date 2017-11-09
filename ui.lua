@@ -30,6 +30,7 @@ countDownButton = newButton(480,474,80,32,'+',function()
 end)
 nextRoundButton = newButton(400,400,200,32,'Next round!',function()
   currentGame:setupRound(previousRoundWinner)
+  playerHandTimers = {}
 end)
 
 twoButton = newButton(400,440, 32,32,'2',function()
