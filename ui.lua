@@ -1,12 +1,14 @@
 local callSound = love.audio.newSource( 'sound/call.mp3','static' )
 
-callButton = newButton(480,400,80,32,'Call!',function()
+callButton = newButton(400,400,160,32,'Call!',function()
   callSound:play()
-  previousRoundWinner = currentGame:call()
+  local tbl = currentGame:call()
+  previousRoundWinner = tbl[1]
+  previousRoundLoser = tbl[2]
   clientBet.count = 1
   clientBet.face = 2
 end)
-betButton = newButton(400,400,80,32,'Bet!',function()
+betButton = newButton(400,400,160,32,'Bet!',function()
   local p = currentGame.currentPlayerIndex
   if currentGame:submitBet(clientBet) then
     history[#history+1] = {face=clientBet.face,count=clientBet.count,player=p}

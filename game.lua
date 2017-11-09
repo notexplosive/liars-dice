@@ -1,5 +1,8 @@
 require('logic')
 
+local winSound = love.audio.newSource( 'sound/win.mp3','static' )
+local loseSound = love.audio.newSource( 'sound/lose.mp3','static' )
+
 function newPlayer()
   return {
     -- list of dice
@@ -146,7 +149,14 @@ function newGame()
        winner = self.currentPlayerIndex
      end
      self.players[loser].health = self.players[loser].health - 1
-     return winner
+     -- Consider refactoring, player 1 might not always be the client
+     if self.players[loser] == 1 then
+       loseSound:play()
+     else
+       winSound:play()
+     end
+     print(winner..','..loser)
+     return {winner,loser}
    end,
 
    totalDice = function(self)

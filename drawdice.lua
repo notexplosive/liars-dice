@@ -1,3 +1,8 @@
+local rollSounds = {
+  love.audio.newSource( 'sound/roll_1.mp3','static' ),
+  love.audio.newSource( 'sound/roll_2.mp3','static' )
+}
+
 function drawDi(face,x,y,size,highlight,wireframe)
   if highlight == nil then highlight = false end
 
@@ -69,19 +74,20 @@ function drawHand(player,x,y,scale,highlightFace,timers)
     end
   end
   if #timers ~= #player.hand then
+    rollSounds[love.math.random(2)]:play()
     for i = 1, #player.hand do
       timers[i] = 5*i
     end
   end
   for i = 1, #player.hand do
-    wf = true
+    wireframe = true
     if timers[i] > 0 then
       timers[i] = timers[i] - 1
       y = y - timers[i]
     else
-      wf = false
+      wireframe = false
     end
-    drawDi(player.hand[i],x+(scale+4)*(i-1),y,scale,player.hand[i] == highlightFace or (player.hand[i] == 1 and highlightFace ~= 0),wf)
+    drawDi(player.hand[i],x+(scale+4)*(i-1),y,scale,player.hand[i] == highlightFace or (player.hand[i] == 1 and highlightFace ~= 0),wireframe)
   end
 end
 
