@@ -23,6 +23,8 @@ local timeAccumulate = 0
 local rustleSound = love.audio.newSource( 'sound/rustle_dice.mp3','static' )
 local callSound = love.audio.newSource( 'sound/call.mp3','static' )
 
+love.graphics.setBackgroundColor(38, 43, 68)
+
 function love.update(dt)
   if prev_state ~= currentGame.state then
     prev_state = currentGame.state
@@ -56,7 +58,8 @@ function love.update(dt)
 end
 
 function love.draw()
-  local y = 0
+  local x = 16
+  local y = 16
   love.graphics.setColor(255,255,255)
   love.graphics.setFont( mainFont )
 
@@ -82,8 +85,11 @@ function love.draw()
     betButton.visible = clientsTurn and not roundEnd
     countUpButton.visible = clientsTurn and not roundEnd
     countDownButton.visible = clientsTurn and not roundEnd
-    faceUpButton.visible = clientsTurn and not roundEnd
-    faceDownButton.visible = clientsTurn and not roundEnd
+    twoButton.visible = clientsTurn and not roundEnd
+    threeButton.visible = clientsTurn and not roundEnd
+    fourButton.visible = clientsTurn and not roundEnd
+    fiveButton.visible = clientsTurn and not roundEnd
+    sixButton.visible = clientsTurn and not roundEnd
 
     if clientsTurn and (roundMid or roundStart) then
       drawBet(clientBet,400,200)
@@ -96,7 +102,7 @@ function love.draw()
       end
       love.graphics.setFont(mainFont)
       love.graphics.setColor(255,255,255)
-      love.graphics.print(name,0,y)
+      love.graphics.print(name,x,y)
       y = y+love.graphics.getFont():getHeight()
       local highlightFace = nil
       if currentGame.state == 'round_over' then
@@ -104,12 +110,12 @@ function love.draw()
       end
 
       if i == clientIndex then
-        drawHand(currentGame.players[i],0,y,32,highlightFace)
+        drawHand(currentGame.players[i],x,y,32,highlightFace)
       else
         if currentGame.state == 'round_over' then
-          drawHand(currentGame.players[i],0,y,32,highlightFace)
+          drawHand(currentGame.players[i],x,y,32,highlightFace)
         else
-          drawHiddenHand(currentGame.players[i],0,y,32)
+          drawHiddenHand(currentGame.players[i],x,y,32)
         end
       end
       love.graphics.setColor(255,255,255)

@@ -1,6 +1,7 @@
 Buttons = {}
 
 local snapSound = love.audio.newSource( 'sound/snap_dice.mp3','static' )
+local tapSound = love.audio.newSource( 'sound/tap_dice.mp3','static' )
 
 function newButton(xp,yp,w,h,name,func)
   if xp == nil then
@@ -27,6 +28,7 @@ function newButton(xp,yp,w,h,name,func)
     height = h,
     name = name,
     visible = true,
+    wasHoverLastFrame = true,
 
     hover = function(self)
       local mx,my = love.mouse.getX(),love.mouse.getY()
@@ -39,11 +41,25 @@ function newButton(xp,yp,w,h,name,func)
     draw = function(self)
       if not self.visible then return end
       local fill = 'line'
-      if self:hover() then fill = 'fill' end
+      if self:hover() then
+        if not self.wasHoverLastFrame then
+          tapSound:stop()
+          tapSound:play()
+        end
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.rectangle('line', self.x, self.y, self.width, self.height)
+        fill = 'fill'
+      end
       love.graphics.setColor(100, 100, 255)
+
+      if love.mouse.isDown(1) and self:hover() then
+        love.graphics.setColor(120, 120, 255)
+      end
+
       love.graphics.rectangle(fill, self.x, self.y, self.width, self.height)
       love.graphics.setColor(255,255,255)
       love.graphics.print(self.name,self.x+10,self.y+10)
+      self.wasHoverLastFrame = self:hover()
     end,
 
     onClick = func
