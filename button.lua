@@ -26,7 +26,7 @@ function newButton(xp,yp,w,h,name,func)
     width = w,
     height = h,
     name = name,
-    hide = false,
+    visible = true,
 
     hover = function(self)
       local mx,my = love.mouse.getX(),love.mouse.getY()
@@ -37,7 +37,7 @@ function newButton(xp,yp,w,h,name,func)
     end,
 
     draw = function(self)
-      if self.hide then return end
+      if not self.visible then return end
       local fill = 'line'
       if self:hover() then fill = 'fill' end
       love.graphics.setColor(100, 100, 255)
@@ -57,7 +57,7 @@ function love.mousepressed(x, y, button, isTouch)
   if button == 1 then
     for i=1,#Buttons do
       local b = Buttons[i]
-      if b:hover() and not b.hide then
+      if b:hover() and b.visible then
         b.onClick()
         snapSound:stop()
         snapSound:play()

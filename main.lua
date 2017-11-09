@@ -20,20 +20,25 @@ previousRoundWinner = 0
 
 local prev_state = ''
 local timeAccumulate = 0
+local rustleSound = love.audio.newSource( 'sound/rustle_dice.mp3','static' )
+local callSound = love.audio.newSource( 'sound/call.mp3','static' )
 
 function love.update(dt)
   if prev_state ~= currentGame.state then
     prev_state = currentGame.state
-    print(currentGame.state)
   end
 
   if currentGame.state ~= 'game_over' then
     if currentGame.currentPlayerIndex ~= clientIndex and currentGame.state ~= 'round_over' then
       local estimate = estimateBoard(currentGame.players[currentGame.currentPlayerIndex].hand,currentGame:totalDice())
       timeAccumulate = timeAccumulate + dt
-      if timeAccumulate > love.math.random(3)/10 then
+      if timeAccumulate > love.math.random(3)/2 then
+        rustleSound:stop()
+        rustleSound:play()
         local output = botTurn(currentGame.players[currentGame.currentPlayerIndex].hand,currentGame:totalDice(),currentGame.currentBet)
         if output.command == 'call' then
+          callSound:stop()
+          callSound:play()
           previousRoundWinner = currentGame:call()
         else
           local bet = output.bet
@@ -67,35 +72,22 @@ function love.draw()
     drawHistory(0,500)
 
     -- REFACTOR!
-    if clientIndex == currentGame.currentPlayerIndex then
-      if currentGame.state == 'round_mid' or currentGame.state == 'round_start' then
-        callButton.hide = false
-        betButton.hide = false
-        faceUpButton.hide = false
-        faceDownButton.hide = false
-        countUpButton.hide = false
-        countDownButton.hide = false
-        drawBet(clientBet,400,200)
-      end
+    local clientsTurn = clientIndex == currentGame.currentPlayerIndex
+    local roundStart = currentGame.state == 'round_start'
+    local roundMid = currentGame.state == 'round_mid'
+    local roundEnd = currentGame.state == 'round_over'
 
-      if currentGame.state == 'round_over' then
-        callButton.hide = true
-        betButton.hide = true
-        faceUpButton.hide = true
-        faceDownButton.hide = true
-        countUpButton.hide = true
-        countDownButton.hide = true
-      end
-    else
-      callButton.hide = true
-      betButton.hide = true
-      faceUpButton.hide = true
-      faceDownButton.hide = true
-      countUpButton.hide = true
-      countDownButton.hide = true
+    callButton.visible = clientsTurn and not roundStart and not roundEnd
+    nextRoundButton.visible = roundEnd
+    betButton.visible = clientsTurn and not roundEnd
+    countUpButton.visible = clientsTurn and not roundEnd
+    countDownButton.visible = clientsTurn and not roundEnd
+    faceUpButton.visible = clientsTurn and not roundEnd
+    faceDownButton.visible = clientsTurn and not roundEnd
+
+    if clientsTurn and (roundMid or roundStart) then
+      drawBet(clientBet,400,200)
     end
-
-    nextRoundButton.hide = currentGame.state ~= 'round_over'
 
     for i = 1, #currentGame.players do
       local name = currentGame.players[i].name

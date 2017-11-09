@@ -1,4 +1,7 @@
+local callSound = love.audio.newSource( 'sound/call.mp3','static' )
+
 callButton = newButton(400,360,200,32,'Call!',function()
+  callSound:play()
   previousRoundWinner = currentGame:call()
   clientBet.count = 1
   clientBet.face = 2
