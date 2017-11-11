@@ -54,3 +54,9 @@ end)
 sixButton = newButton(528,440, 32,32,'6',function()
   clientBet.face = 6
 end)
+
+startGameButton = newButton(100,100,128,32,'Start Game', function()
+  globalState = "GAME"
+  currentGame = newGame()
+  currentGame:setup(4,5)
+end)
