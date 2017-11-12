@@ -12,10 +12,14 @@ clientButton = newButton(400,400,160,32,'Client',function()
   setupClient()
 end)
 
+local client = socket.connect( "www.google.com", 80 )
+local myip, port = client:getsockname()
+print(myip)
+client:close()
+
 function setupServer()
   server = socket.udp()
   print(server:setsockname("0.0.0.0",25566))
-  print(server:setpeername("0.0.0.0",25566))
   server:settimeout(1)--1/120)
   print(server)
   isClient = false
@@ -23,7 +27,7 @@ end
 
 function setupClient()
   server = socket.udp()
-  print(server:setpeername("0.0.0.0",25566))
+  print(server:setpeername(myip,25566))
   print(server)
   isClient = true
 end
@@ -33,17 +37,22 @@ function love.load(arg)
 end
 
 function love.draw()
+  local output = ""
   for i = 1, #Buttons do
     Buttons[i]:draw()
   end
 
+  output = output .. myip
+
   if server ~= nil then
     if isClient then
-      love.graphics.print("Is Client")
+      output = output .. "Is Client\n"
     else
-      love.graphics.print("Is Server")
+      output = output .. "Is Server\n"
     end
   end
+
+  love.graphics.print(output)
 end
 
 function love.quit()
@@ -56,11 +65,12 @@ end
 function love.update(dt)
   if server ~= nil then
     if isClient then
-      --print(server:send("Hello!"))
+      server:send("Hello!")
     else
-      print(server:getsockname())
       local recv = server:receive()
-      print(recv)
+      if recv then
+        print(recv)
+      end
     end
   end
 end

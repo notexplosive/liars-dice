@@ -1,3 +1,5 @@
+-- Copied from above directory, prooobably should optimze that
+
 Buttons = {}
 
 function newButton(xp,yp,w,h,name,func)
