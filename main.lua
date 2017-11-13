@@ -83,6 +83,9 @@ playerHandTimers = {}
 
 function love.draw()
   startGameButton.visible = globalState == "MENU"
+  hostButton.visible = globalState == "MENU"
+  joinButton.visible = globalState == "MENU"
+
   love.graphics.setColor(255,255,255)
   love.graphics.setFont( mainFont )
 

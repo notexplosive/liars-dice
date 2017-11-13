@@ -60,3 +60,41 @@ startGameButton = newButton(100,100,128,32,'Start Game', function()
   currentGame = newGame()
   currentGame:setup(4,5)
 end)
+
+hostButton = newButton(100,148,128,32,'Host Multiplayer', function()
+  globalState = "HOST_SETUP"
+end)
+
+joinButton = newButton(100,180,128,32,'Join Multiplayer', function()
+
+end)
+
+exitButton = newButton(600,472,128,32,'Exit to Menu', function()
+  globalState = "MENU"
+  currentGame = nil
+
+  callButton.visible = false
+  betButton.visible = false
+  countUpButton.visible = false
+  countDownButton.visible = false
+  nextRoundButton.visible = false
+  twoButton.visible = false
+  threeButton.visible = false
+  fourButton.visible = false
+  fiveButton.visible = false
+  sixButton.visible = false
+end)
+
+
+startGameButton.visible = true
+
+callButton.visible = false
+betButton.visible = false
+countUpButton.visible = false
+countDownButton.visible = false
+nextRoundButton.visible = false
+twoButton.visible = false
+threeButton.visible = false
+fourButton.visible = false
+fiveButton.visible = false
+sixButton.visible = false
