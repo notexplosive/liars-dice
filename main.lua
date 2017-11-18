@@ -7,6 +7,7 @@ require('drawdice')
 require('button')
 require('bot')
 require('ui')
+require('net_server')
 
 mainFont = love.graphics.newFont(12)
 
@@ -20,6 +21,10 @@ previousRoundWinner = 0
 previousRoundLoser = 0
 globalState = "MENU"
 
+-- Netcode related constants
+online = false
+notHost = false
+
 local prev_state = ''
 local timeAccumulate = 0
 local rustleSound = love.audio.newSource( 'sound/rustle_dice.mp3','static' )
@@ -32,9 +37,20 @@ local saySounds = {
   love.audio.newSource( 'sound/say5.mp3','static' )
 }
 
+function love.load(arg)
+  love.window.setMode(1024, 576, {
+    minwidth = 1024,
+    minheight = 576,
+    fullscreen = false,
+    resizable = true
+  })
+end
+
 love.graphics.setBackgroundColor(38, 43, 68)
 
 function love.update(dt)
+  networkUpdate(dt)
+
   if currentGame then
     if prev_state ~= currentGame.state then
       prev_state = currentGame.state
@@ -82,19 +98,24 @@ end
 playerHandTimers = {}
 
 function love.draw()
-  startGameButton.visible = globalState == "MENU"
-  hostButton.visible = globalState == "MENU"
-  joinButton.visible = globalState == "MENU"
-
   love.graphics.setColor(255,255,255)
   love.graphics.setFont( mainFont )
+  -- Debug scaffolding
+  love.graphics.print(constructOutput())
+
+  startGameButton.visible = globalState == "MENU" and not (online and notHost)
+  hostButton.visible = globalState == "MENU"
+  joinButton.visible = globalState == "MENU"
+  exitButton.visible = globalState ~= "MENU"
 
   for i = 1, #Buttons do
     Buttons[i]:draw()
   end
 
   if currentGame then
-    local x = 16
+    -- offset for hands UI
+    -- TODO: change this whole architecture so each module has a root x,y
+    local x = love.graphics.getWidth()/2
     local y = 16
 
     if currentGame.state ~= 'game_over' then

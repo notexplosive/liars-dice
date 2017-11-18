@@ -67,9 +67,6 @@ function love.quit()
   end
 end
 
--- Syncronized number value for debugging
-TheNumber = 0
-
   -- loop forever waiting for clients
 function love.update(dt)
   if server ~= nil then

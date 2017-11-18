@@ -1,3 +1,6 @@
+require "net_server"
+require "net_client"
+
 local callSound = love.audio.newSource( 'sound/call.mp3','static' )
 
 callButton = newButton(400,400,160,32,'Call!',function()
@@ -62,11 +65,11 @@ startGameButton = newButton(100,100,128,32,'Start Game', function()
 end)
 
 hostButton = newButton(100,148,128,32,'Host Multiplayer', function()
-  globalState = "HOST_SETUP"
+  setupServer()
 end)
 
 joinButton = newButton(100,180,128,32,'Join Multiplayer', function()
-
+  setupClient()
 end)
 
 exitButton = newButton(600,472,128,32,'Exit to Menu', function()

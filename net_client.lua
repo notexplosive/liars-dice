@@ -1,9 +1,14 @@
-require("tags")
+require("net_tags")
 
+
+-- Syncronized number value for debugging
+TheNumber = 0
 established = false
 interval = 0
 
 function setupClient()
+  online = true
+  notHost = true
   server = socket.udp()
   server:setpeername(myip,PORT)
   server:settimeout(1/120)
@@ -24,5 +29,14 @@ function clientListenBack()
     if newNum then
       TheNumber = newNum
     end
+  end
+end
+
+function love.quit()
+  if server then
+    if isClient then
+      server:send(EXIT)
+    end
+    server:close()
   end
 end
