@@ -5,16 +5,38 @@ EXIT = "exit"
 BEAT = "beat"
 ITERATE = "iterate_num"
 SYNC = "NUM " -- space is important!
+TABLE_REQ = "TABLEREQ "
+TABLE_SET = "TABLESET "
+STARTGAME = "START "
 
 -- Example:
 -- getArgFrom("NUM 5","NUM") --> '5'
+-- getArgFrom("NUM 5","TABLEREQ") --> nil
+-- getArgFrom("TABLESET foo bar","TABLESET") --> "TABLESET" "foo" "bar"
 function getArgFrom(recv,command)
-  local val = nil
+  local val = {}
+
   if recv:match(command..".*") then
-    val = recv:match(command..".*"):sub(recv:find(' ')+1,recv:len())
+    val = stringSplit(recv)
+  end
+
+  if #val == 0 then
+    return nil
+  end
+
+  if #val == 2 then
+    return val[2]
   end
 
   return val
+end
+
+function stringSplit(str)
+  words = {}
+  for word in str:gmatch("%w+") do
+    table.insert(words, word)
+  end
+  return words
 end
 
 function constructOutput()

@@ -11,8 +11,7 @@ require('net_server')
 
 mainFont = love.graphics.newFont(12)
 
-currentGame = nil -- newGame()
---currentGame:setup(4,5)
+currentGame = nil
 
 clientIndex = 1
 clientBet = {face=2,count=1}
@@ -21,7 +20,7 @@ previousRoundWinner = 0
 previousRoundLoser = 0
 globalState = "MENU"
 
--- Netcode related constants
+-- Netcode related fields
 online = false
 notHost = false
 
@@ -104,8 +103,8 @@ function love.draw()
   love.graphics.print(constructOutput())
 
   startGameButton.visible = globalState == "MENU" and not (online and notHost)
-  hostButton.visible = globalState == "MENU"
-  joinButton.visible = globalState == "MENU"
+  hostButton.visible = globalState == "MENU" and not online
+  joinButton.visible = globalState == "MENU" and not online
   exitButton.visible = globalState ~= "MENU"
 
   for i = 1, #Buttons do

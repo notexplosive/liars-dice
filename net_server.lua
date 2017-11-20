@@ -33,16 +33,19 @@ function serverCommandHandler()
   local recv,ip,port = server:receivefrom()
   if recv then
     if recv == ESTABLISH_REQ then
-      local agent = {ID=ip..':'..port,ttk=5}
+      -- TODO: revise playerno
+      local agent = {ID=ip..':'..port,ttk=5,playerno=#Agents+1,ip=ip,port=port}
       Agents[#Agents + 1] = agent
       server:sendto(ESTABLISH_YES,ip,port)
       print("Establish attempted read")
     end
-    if recv == BEAT then
-      Agents[getIndexOfAgent(ip..':'..port)].ttk = 5
 
+    local currentAgent = Agents[getIndexOfAgent(ip..':'..port)]
+
+    if recv == BEAT then
+      currentAgent.ttk = 5
       -- update them on all the latest info
-      server:sendto(SYNC..TheNumber,ip,port)
+      sendToAgent(currentAgent,SYNC..TheNumber)
     end
     if recv == EXIT then
       flaggedForDelete = getIndexOfAgent(ip..':'..port)
@@ -50,47 +53,49 @@ function serverCommandHandler()
     if recv == ITERATE then
       TheNumber = TheNumber + 1
     end
+    if getArgFrom(recv,TABLE_REQ) then
+      print(TABLE_SET..getArgFrom(recv,TABLE_REQ))
+      print(currentAgent[getArgFrom(recv,TABLE_REQ)])
+      sendToAgent(currentAgent,TABLE_SET..getArgFrom(recv,TABLE_REQ)..' '..currentAgent[getArgFrom(recv,TABLE_REQ)])
+    end
     if flaggedForDelete then
       table.remove(Agents,flaggedForDelete)
     end
   end
 end
 
+function sendToAgent(agent,data)
+  server:sendto(data,agent.ip,agent.port)
+end
+
+function sendToAllAgents(data)
+  for i=1,#Agents do
+    agent = Agents[i]
+    sendToAgent(agent,data)
+  end
+end
+
+function serverUpdate(dt)
+  local flaggedForDelete = nil
+  for i=1,#Agents do
+    -- tick down time to kill
+    Agents[i].ttk = Agents[i].ttk - dt
+
+    if Agents[i].ttk < 0 then
+      flaggedForDelete = i
+    end
+  end
+
+  serverCommandHandler()
+end
+
 function networkUpdate(dt)
   if server ~= nil then
+    print(clientIndex)
     if isClient then
-      interval = interval + dt
-      if interval > 1 then
-        interval = 0
-        if established then
-          -- Poke the server, remind it we're still around
-          server:send(BEAT)
-        end
-      end
-
-      if not established then
-        server:send(ESTABLISH_REQ)
-        --print("I'm trying to establish")
-      end
-
-      if math.random(100) < 2 then
-        server:send(ITERATE)
-      end
-
-      -- Listening back
-      clientListenBack()
+      clientUpdate(dt)
     else
-      local flaggedForDelete = nil
-      for i=1,#Agents do
-        -- tick down time to kill
-        Agents[i].ttk = Agents[i].ttk - dt
-
-        if Agents[i].ttk < 0 then
-          flaggedForDelete = i
-        end
-      end
-
-      serverCommandHandler()
+      serverUpdate(dt)
     end
   end
 end

@@ -60,8 +60,21 @@ end)
 
 startGameButton = newButton(100,100,128,32,'Start Game', function()
   globalState = "GAME"
-  currentGame = newGame()
-  currentGame:setup(4,5)
+
+  if not online then
+    currentGame = newGame()
+    currentGame:setup(4,5)
+  else
+    local num_players = #Agents+1
+    if not isClient then
+      currentGame = newGame()
+      currentGame:setup(num_players,5)
+      clientIndex = 1
+      for i=1,#Agents do
+        sendToAgent(Agents[i],STARTGAME..num_players..' '..(i+1))
+      end
+    end
+  end
 end)
 
 hostButton = newButton(100,148,128,32,'Host Multiplayer', function()
