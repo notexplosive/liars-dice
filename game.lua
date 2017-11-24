@@ -11,6 +11,14 @@ function newPlayer()
     health = 1,
     -- name, makes it easier to tell players apart
     name = "Unnamed Player",
+    -- Used for random seeding
+    randomSequence = {
+      love.math.random(10),
+      love.math.random(10),
+      love.math.random(10),
+      love.math.random(10),
+      love.math.random(10)
+    }
   }
 end
 

@@ -56,7 +56,8 @@ function drawDi(face,x,y,size,highlight,wireframe)
   love.graphics.circle(fillType, x+size/2, y+size/2, size/2, 20)
 end
 
-function drawHand(player,x,y,scale,highlightFace,timers)
+function drawHand(player,x,y,scale,highlightFace,timers,circular)
+  local distance = 50*#player.hand/5
   if x == nil then
     x = 0
     y = 0
@@ -73,6 +74,10 @@ function drawHand(player,x,y,scale,highlightFace,timers)
       timers[i] = 0
     end
   end
+  if circular == nil then
+    circular = true
+  end
+
   if #timers ~= #player.hand then
     rollSounds[love.math.random(2)]:play()
     for i = 1, #player.hand do
@@ -87,11 +92,17 @@ function drawHand(player,x,y,scale,highlightFace,timers)
     else
       wireframe = false
     end
-    drawDi(player.hand[i],x+(scale+4)*(i-1),y,scale,player.hand[i] == highlightFace or (player.hand[i] == 1 and highlightFace ~= 0),wireframe)
+    if circular then
+      local angle = i/#player.hand * math.pi * 2  + math.pi/10
+      drawDi(player.hand[i],x+math.cos(angle)*distance-scale/2,y+math.sin(angle)*distance-scale/2,scale,player.hand[i] == highlightFace or (player.hand[i] == 1 and highlightFace ~= 0),wireframe)
+    else
+      drawDi(player.hand[i],x+(scale+4)*(i-1),y,scale,player.hand[i] == highlightFace or (player.hand[i] == 1 and highlightFace ~= 0),wireframe)
+    end
   end
 end
 
-function drawHiddenHand(player,x,y,scale)
+function drawHiddenHand(player,x,y,scale,circular)
+  local distance = 50*#player.hand/5
   if x == nil then
     x = 0
     y = 0
@@ -99,9 +110,17 @@ function drawHiddenHand(player,x,y,scale)
   if scale == nil then
     scale = 64
   end
+  if circular == nil then
+    circular = true
+  end
 
   for i = 1, #player.hand do
-    drawDi(0,x+(scale+4)*(i-1),y,scale)
+    if circular then
+      local angle = i/#player.hand * math.pi * 2 + math.pi/10
+      drawDi(0,x+math.cos(angle)*distance-scale/2,y+math.sin(angle)*distance-scale/2,scale)
+    else
+      drawDi(0,x+(scale+4)*(i-1),y,scale)
+    end
   end
 end
 

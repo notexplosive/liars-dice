@@ -9,7 +9,8 @@ require('bot')
 require('ui')
 require('net_server')
 
-mainFont = love.graphics.newFont(12)
+mainFont = love.graphics.newFont('font/Limelight-Regular.ttf',12)
+bigFont = love.graphics.newFont('font/Limelight-Regular.ttf',128)
 
 currentGame = nil
 
@@ -98,10 +99,16 @@ playerHandTimers = {}
 
 function love.draw()
   love.graphics.setColor(255,255,255)
-  love.graphics.setFont( mainFont )
   -- Debug scaffolding
   love.graphics.print(constructOutput())
 
+  love.graphics.setColor(255,255,255,10)
+  love.graphics.ellipse('fill', love.graphics.getWidth()/2, love.graphics.getHeight()/2, 500, 200)
+  love.graphics.setFont( bigFont )
+  love.graphics.print('Liar\'s Dice',love.graphics.getWidth()/2-love.graphics.getFont():getWidth('Liar\'s Dice')/2, love.graphics.getHeight()/2-64)
+  love.graphics.setFont( mainFont )
+
+  love.graphics.setColor(255,255,255)
   startGameButton.visible = globalState == "MENU" and not (online and notHost)
   hostButton.visible = globalState == "MENU" and not online
   joinButton.visible = globalState == "MENU" and not online
@@ -141,7 +148,7 @@ function love.draw()
       sixButton.visible = clientsTurn and not roundEnd
 
       if clientsTurn and (roundMid or roundStart) then
-        drawBet(clientBet,400,200)
+        drawBet(clientBet,UI_ROOT.x-108,UI_ROOT.y,.5)
       end
 
       for i = 1, #currentGame.players do
@@ -163,23 +170,24 @@ function love.draw()
 
         love.graphics.setFont(mainFont)
         love.graphics.setColor(255,255,255)
-        love.graphics.print(name,x,y)
-        y = y+love.graphics.getFont():getHeight()
 
         if i == clientIndex then
-          drawHand(currentGame.players[i],x,y,32,highlightFace,playerHandTimers)
+          drawHand(currentGame.players[i],UI_ROOT.x-8,UI_ROOT.y-46,32,highlightFace,playerHandTimers,false)
         else
+          local angle = i/#currentGame.players * math.pi + math.pi/2 + math.pi/4
+          local distance = 200
+          local ax,ay = love.graphics.getWidth()/2+math.cos(angle)*distance*2,love.graphics.getHeight()/2+math.sin(angle)*distance
           if currentGame.state == 'round_over' then
-            drawHand(currentGame.players[i],x,y,32,highlightFace)
+            drawHand(currentGame.players[i],ax,ay,32,highlightFace)
           else
-            drawHiddenHand(currentGame.players[i],x,y,32)
+            drawHiddenHand(currentGame.players[i],ax,ay,32)
           end
         end
         love.graphics.setColor(255,255,255)
         y = y + 46
       end
 
-      drawBet(currentGame.currentBet,400,10)
+      drawBet(currentGame.currentBet,love.graphics.getWidth()/2-32-64,love.graphics.getHeight()/2-64)
     end
   end
 end
