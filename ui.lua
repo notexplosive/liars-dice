@@ -106,6 +106,8 @@ end)
 
 startGameButton.visible = true
 
+hostButton.visible = false
+joinButton.visible = false
 callButton.visible = false
 betButton.visible = false
 countUpButton.visible = false

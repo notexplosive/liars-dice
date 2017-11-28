@@ -9,7 +9,7 @@ require('bot')
 require('ui')
 require('net_server')
 
-mainFont = love.graphics.newFont('font/Limelight-Regular.ttf',12)
+mainFont = love.graphics.newFont('font/Limelight-Regular.ttf',15)
 bigFont = love.graphics.newFont('font/Limelight-Regular.ttf',128)
 
 currentGame = nil
@@ -38,6 +38,7 @@ local saySounds = {
 }
 
 function love.load(arg)
+  love.window.setTitle("Liar's Dice by NotExplosive")
   love.window.setMode(1024, 576, {
     minwidth = 1024,
     minheight = 576,
@@ -49,7 +50,7 @@ end
 love.graphics.setBackgroundColor(38, 43, 68)
 
 function love.update(dt)
-  networkUpdate(dt)
+  --networkUpdate(dt)
 
   if currentGame then
     if prev_state ~= currentGame.state then
@@ -100,18 +101,20 @@ playerHandTimers = {}
 function love.draw()
   love.graphics.setColor(255,255,255)
   -- Debug scaffolding
-  love.graphics.print(constructOutput())
+  -- love.graphics.print(constructOutput())
 
   love.graphics.setColor(255,255,255,10)
   love.graphics.ellipse('fill', love.graphics.getWidth()/2, love.graphics.getHeight()/2, 500, 200)
   love.graphics.setFont( bigFont )
   love.graphics.print('Liar\'s Dice',love.graphics.getWidth()/2-love.graphics.getFont():getWidth('Liar\'s Dice')/2, love.graphics.getHeight()/2-64)
   love.graphics.setFont( mainFont )
+  love.graphics.setColor(255,255,255,50)
+  love.graphics.print('by NotExplosive',love.graphics.getWidth()/2-love.graphics.getFont():getWidth('Liar\'s Dice')/2, love.graphics.getHeight()/2+64)
 
   love.graphics.setColor(255,255,255)
   startGameButton.visible = globalState == "MENU" and not (online and notHost)
-  hostButton.visible = globalState == "MENU" and not online
-  joinButton.visible = globalState == "MENU" and not online
+  --hostButton.visible = globalState == "MENU" and not online
+  --joinButton.visible = globalState == "MENU" and not online
   exitButton.visible = globalState ~= "MENU"
 
   for i = 1, #Buttons do
